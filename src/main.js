@@ -1,14 +1,30 @@
-import './assets/main.css'
+import './index.css';
 
-import { createApp } from 'vue'
-import { createPinia } from 'pinia'
+import { createApp } from 'vue';
+import { createPinia } from 'pinia';
 
-import App from './App.vue'
-import router from './router'
+import PrimeVue from 'primevue/config';
+import Material from '@primevue/themes/material';
+import 'primeicons/primeicons.css';
 
-const app = createApp(App)
+import App from './App.vue';
+import router from './router';
 
-app.use(createPinia())
-app.use(router)
+const app = createApp(App);
 
-app.mount('#app')
+app.use(createPinia());
+app.use(router);
+
+app.use(PrimeVue, {
+  // Default theme configuration
+  theme: {
+    preset: Material,
+    options: {
+      prefix: 'p',
+      darkModeSelector: '.dark',
+      cssLayer: false,
+    },
+  },
+});
+
+app.mount('#app');
