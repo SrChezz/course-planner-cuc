@@ -1,111 +1,263 @@
 <template>
-  <main class="bg-white rounded-lg">
-    <!-- Top Bar Section -->
-    <div class="flex justify-between items-center py-2 px-4">
-      <div>
-        <RouterLink
-          to="/"
-          class="px-2 py-1 hover:bg-gray-200 rounded transition-colors font-semibold"
-          ><i-tabler:heart-handshake
-            class="text-orange-400 inline align-[-0.2em] text-lg mr-1"
-          />¡Bienvenido de vuelta!</RouterLink
+  <div class="flex h-screen bg-gray-100">
+    <!-- Main content -->
+    <main class="flex-1 overflow-y-auto">
+      <!-- Header -->
+      <header class="bg-orange-500 text-white p-6">
+        <h2 class="text-2xl font-bold">Diseño Instruccional</h2>
+        <p class="mt-2">
+          Planifica las lecciones de tus cursos de forma sencilla e intuitiva
+        </p>
+        <button
+          @click="openCreateModal"
+          class="mt-4 bg-yellow-500 text-black px-4 py-2 rounded-full hover:bg-yellow-400 transition duration-300"
         >
-      </div>
-      <div>
-        <Button
-          unstyled
-          class="px-2 py-1 hover:bg-gray-200 rounded transition-colors"
-          ><i-tabler:share-2 class="inline align-[-0.2em] text-lg" />
-          Exportar</Button
-        >
-      </div>
-    </div>
+          Crear Curso
+        </button>
+      </header>
 
-    <div class="flex flex-col px-4 gap-6">
-      <!-- Banner -->
-      <div class="bg-orange-600 rounded-xl px-6 py-4 grid grid-cols-2">
-        <div>
-          <span class="font-semibold text-gray-100 mb-2 block"
-            >Diseño Instruccional</span
-          >
-          <h1 class="text-3xl font-bold text-white mb-4">
-            Planifica las lecciones de tus cursos de forma sencilla e intuitiva
-          </h1>
+      <!-- Faculties -->
+      <section class="p-6">
+        <h3 class="text-lg font-semibold mb-4">Facultades:</h3>
+        <div class="flex space-x-4">
           <button
-            class="px-2 py-2 bg-yellow-500 rounded-xl font-semibold cursor-pointer hover:bg-white hover:text-yellow-600 transition-colors"
+            v-for="faculty in faculties"
+            :key="faculty"
+            class="w-12 h-12 bg-orange-600 rounded-full flex items-center justify-center text-white hover:bg-orange-700 transition duration-300"
           >
-            Crear Curso
+            <i-mdi-wrench class="w-6 h-6" />
           </button>
         </div>
-        <div>
-          <img src="@/assets/images/home-image-1.png" class="ml-auto" />
-        </div>
-      </div>
+      </section>
 
-      <!-- Categories -->
-      <div>
-        <h2 class="text-2xl font-semibold mb-4">Facultades:</h2>
-        <div class="grid grid-flow-col auto-cols-min gap-6">
-          <div
-            v-for="index in 6"
-            :key="index"
-            class="bg-orange-700 rounded-full h-20 w-20 cursor-pointer hover:scale-105 transition-transform flex justify-center items-center"
-          >
-            <i-tabler:tool class="text-4xl text-white" />
-          </div>
-        </div>
-      </div>
-
-      <!-- Cursos -->
-      <div>
-        <h2 class="text-2xl font-semibold mb-4">Cursos:</h2>
-        <div class="grid grid-flow-row grid-cols-3 gap-6">
+      <!-- Courses -->
+      <section class="p-6">
+        <h3 class="text-lg font-semibold mb-4">Cursos:</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <RouterLink
-            v-for="index in 6"
-            :key="index"
-            class="rounded-2xl bg-gray-100 overflow-hidden"
+            :to="`/course/${course.id}`"
+            v-for="course in courses"
+            :key="course.id"
+            class="bg-white rounded-lg shadow-md overflow-hidden relative"
           >
-            <div>
-              <img
-                src="../assets/images/course-example.jpg"
-                class="w-full h-32"
-                alt=""
-              />
-            </div>
-            <div class="p-2">
-              <h3 class="text-lg font-semibold">Nombre del Curso</h3>
-              <h5 class="text-sm text-gray-500">By Nombre del Docente</h5>
-              <p class="text-pretty py-1">
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                Repudiandae asperiores sapiente iusto illum, similique
-                perspiciatis repellat tempore quibusdam.
+            <img
+              :src="course.image"
+              :alt="course.name"
+              class="w-full h-48 object-cover"
+            />
+            <div class="p-4">
+              <h4 class="text-xl font-semibold mb-2">{{ course.name }}</h4>
+              <p class="text-sm text-gray-600 mb-2">By {{ course.author }}</p>
+              <p class="text-sm text-gray-700 mb-4">
+                {{ course.shortDescription }}
               </p>
+              <div class="flex justify-between text-sm text-gray-500">
+                <span>{{ course.duration }} Horas</span>
+                <span>{{ course.credits }} Créditos</span>
+              </div>
             </div>
-            <div
-              class="flex justify-between text-gray-400 font-semibold px-2 py-4"
-            >
-              <span
-                ><i-tabler:clock class="inline align-[-0.2em] text-lg" /> 32
-                Horas</span
+            <div class="absolute top-2 right-2 flex space-x-2">
+              <button
+                @click.prevent="openEditModal(course)"
+                class="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition duration-300"
               >
-              <span
-                ><i-tabler:medal-2 class="inline align-[-0.2em] text-lg" /> 03
-                Créditos</span
+                <i-mdi-pencil class="w-4 h-4" />
+              </button>
+              <button
+                @click.prevent="deleteCourse(course.id)"
+                class="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition duration-300"
               >
+                <i-mdi-delete class="w-4 h-4" />
+              </button>
             </div>
           </RouterLink>
         </div>
+      </section>
+    </main>
+
+    <!-- Create/Edit Course Modal -->
+    <div
+      v-if="showModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-lg p-8 w-full max-w-2xl">
+        <h2 class="text-2xl font-bold mb-4">
+          {{ isEditing ? "Editar Curso" : "Crear Nuevo Curso" }}
+        </h2>
+        <form
+          @submit.prevent="submitCourse(currentCourse.id)"
+          class="space-y-4"
+        >
+          <div>
+            <label for="name" class="block text-sm font-medium text-gray-700"
+              >Nombre del Curso</label
+            >
+            <input
+              v-model="currentCourse.name"
+              id="name"
+              type="text"
+              required
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+            />
+          </div>
+          <div>
+            <label for="author" class="block text-sm font-medium text-gray-700"
+              >Autor</label
+            >
+            <input
+              v-model="currentCourse.author"
+              id="author"
+              type="text"
+              required
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+            />
+          </div>
+          <div>
+            <label
+              for="shortDescription"
+              class="block text-sm font-medium text-gray-700"
+              >Descripción Corta</label
+            >
+            <textarea
+              v-model="currentCourse.shortDescription"
+              id="shortDescription"
+              rows="3"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+            ></textarea>
+          </div>
+          <div>
+            <label
+              for="duration"
+              class="block text-sm font-medium text-gray-700"
+              >Duración (horas)</label
+            >
+            <input
+              v-model="currentCourse.duration"
+              id="duration"
+              type="number"
+              required
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+            />
+          </div>
+          <div>
+            <label for="credits" class="block text-sm font-medium text-gray-700"
+              >Créditos</label
+            >
+            <input
+              v-model="currentCourse.credits"
+              id="credits"
+              type="number"
+              required
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+            />
+          </div>
+          <div>
+            <label for="image" class="block text-sm font-medium text-gray-700"
+              >URL de la Imagen</label
+            >
+            <input
+              v-model="currentCourse.image"
+              id="image"
+              type="url"
+              required
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+            />
+          </div>
+          <div class="flex justify-end space-x-3">
+            <button
+              type="button"
+              @click="closeModal"
+              class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+            >
+              {{ isEditing ? "Actualizar" : "Crear" }}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
-  </main>
+  </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, reactive } from "vue";
+import { useCoursesStore } from "@/stores/courses";
 
-const home = ref({
-  icon: 'pi pi-home',
-  route: '/',
+const coursesStore = useCoursesStore();
+
+const faculties = ref([
+  "Engineering",
+  "Science",
+  "Arts",
+  "Business",
+  "Law",
+  "Medicine",
+]);
+const courses = ref([]);
+const showModal = ref(false);
+const isEditing = ref(false);
+const currentCourse = reactive({
+  id: null,
+  name: "",
+  author: "",
+  shortDescription: "",
+  duration: 0,
+  credits: 0,
+  image: "",
 });
-const items = ref([{ label: '', route: '/' }]);
+
+// Fetch courses from Pinia store
+const fetchCourses = async () => {
+  await coursesStore.fetchCourses();
+  courses.value = coursesStore.courses;
+};
+
+const openCreateModal = () => {
+  isEditing.value = false;
+  Object.assign(currentCourse, {
+    id: null,
+    name: "",
+    author: "",
+    shortDescription: "",
+    duration: 0,
+    credits: 0,
+    image: "",
+  });
+  showModal.value = true;
+};
+
+const openEditModal = (course) => {
+  isEditing.value = true;
+  Object.assign(currentCourse, course);
+  showModal.value = true;
+};
+
+const closeModal = () => {
+  showModal.value = false;
+};
+
+const submitCourse = async (id) => {
+  if (isEditing.value) {
+    await coursesStore.updateCourse(id, currentCourse);
+  } else {
+    await coursesStore.createCourse(currentCourse);
+  }
+  await fetchCourses();
+  closeModal();
+};
+
+const deleteCourse = async (id) => {
+  if (confirm("¿Estás seguro de que quieres eliminar este curso?")) {
+    await coursesStore.deleteCourse(id);
+    await fetchCourses();
+  }
+};
+
+// Fetch courses when component is mounted
+fetchCourses();
 </script>

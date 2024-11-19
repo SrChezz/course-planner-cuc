@@ -1,10 +1,10 @@
 <script setup>
-import { RouterView } from 'vue-router';
-import TheSidebar from './components/TheSidebar.vue';
+import { RouterView } from "vue-router";
+import TheSidebar from "./components/TheSidebar.vue";
 </script>
 
 <template>
-  <div class="grid grid-cols-[200px_auto] gap-4 p-4 h-full">
+  <div class="grid grid-cols-[200px_auto] gap-4 h-full">
     <TheSidebar />
     <RouterView />
   </div>
