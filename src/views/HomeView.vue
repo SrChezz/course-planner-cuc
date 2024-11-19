@@ -82,7 +82,7 @@
     >
       <div class="bg-white rounded-lg p-8 w-full max-w-2xl">
         <h2 class="text-2xl font-bold mb-4">
-          {{ isEditing ? "Editar Curso" : "Crear Nuevo Curso" }}
+          {{ isEditing ? 'Editar Curso' : 'Crear Nuevo Curso' }}
         </h2>
         <form
           @submit.prevent="submitCourse(currentCourse.id)"
@@ -175,7 +175,7 @@
               type="submit"
               class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
             >
-              {{ isEditing ? "Actualizar" : "Crear" }}
+              {{ isEditing ? 'Actualizar' : 'Crear' }}
             </button>
           </div>
         </form>
@@ -185,30 +185,29 @@
 </template>
 
 <script setup>
-import { ref, reactive } from "vue";
-import { useCoursesStore } from "@/stores/courses";
+import { ref, reactive } from 'vue';
+import { useCoursesStore } from '@/stores/courses';
 
 const coursesStore = useCoursesStore();
 
 const faculties = ref([
-  "Engineering",
-  "Science",
-  "Arts",
-  "Business",
-  "Law",
-  "Medicine",
+  'Engineering',
+  'Science',
+  'Arts',
+  'Business',
+  'Law',
+  'Medicine',
 ]);
 const courses = ref([]);
 const showModal = ref(false);
 const isEditing = ref(false);
 const currentCourse = reactive({
-  id: null,
-  name: "",
-  author: "",
-  shortDescription: "",
+  name: '',
+  author: '',
+  shortDescription: '',
   duration: 0,
   credits: 0,
-  image: "",
+  image: '',
 });
 
 // Fetch courses from Pinia store
@@ -220,18 +219,17 @@ const fetchCourses = async () => {
 const openCreateModal = () => {
   isEditing.value = false;
   Object.assign(currentCourse, {
-    id: null,
-    name: "",
-    author: "",
-    shortDescription: "",
+    name: '',
+    author: '',
+    shortDescription: '',
     duration: 0,
     credits: 0,
-    image: "",
+    image: '',
   });
   showModal.value = true;
 };
 
-const openEditModal = (course) => {
+const openEditModal = course => {
   isEditing.value = true;
   Object.assign(currentCourse, course);
   showModal.value = true;
@@ -241,18 +239,19 @@ const closeModal = () => {
   showModal.value = false;
 };
 
-const submitCourse = async (id) => {
+const submitCourse = async id => {
   if (isEditing.value) {
     await coursesStore.updateCourse(id, currentCourse);
   } else {
+    console.log(currentCourse);
     await coursesStore.createCourse(currentCourse);
   }
   await fetchCourses();
   closeModal();
 };
 
-const deleteCourse = async (id) => {
-  if (confirm("¿Estás seguro de que quieres eliminar este curso?")) {
+const deleteCourse = async id => {
+  if (confirm('¿Estás seguro de que quieres eliminar este curso?')) {
     await coursesStore.deleteCourse(id);
     await fetchCourses();
   }
