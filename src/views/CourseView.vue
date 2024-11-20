@@ -28,7 +28,7 @@
               @click="toggleEdit"
               class="px-4 py-2 mr-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300"
             >
-              {{ isEditing ? "Cancelar" : "Editar" }}
+              {{ isEditing ? 'Cancelar' : 'Editar' }}
             </button>
             <button
               v-if="isEditing"
@@ -213,7 +213,7 @@
                   v-else
                   v-model="editedCourse.keywords"
                   class="border rounded px-2 py-1 w-full"
-                  placeholder="Comma-separated keywords"
+                  placeholder="Etiquetas separadas por una coma"
                 />
               </div>
             </div>
@@ -253,9 +253,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive } from "vue";
-import { useRoute } from "vue-router";
-import { useCoursesStore } from "@/stores/courses";
+import { ref, onMounted, reactive } from 'vue';
+import { useRoute } from 'vue-router';
+import { useCoursesStore } from '@/stores/courses';
 
 const route = useRoute();
 const coursesStore = useCoursesStore();
@@ -284,10 +284,8 @@ const confirmUpdate = () => {
 };
 
 const updateCourse = async () => {
-  if (typeof editedCourse.keywords === "string") {
-    editedCourse.keywords = editedCourse.keywords
-      .split(",")
-      .map((k) => k.trim());
+  if (typeof editedCourse.keywords === 'string') {
+    editedCourse.keywords = editedCourse.keywords.split(',').map(k => k.trim());
   }
   await coursesStore.updateCourse(route.params.id, editedCourse);
   course.value = JSON.parse(JSON.stringify(editedCourse));
@@ -305,10 +303,10 @@ const addUnit = () => {
   });
 };
 
-const addLesson = (unit) => {
+const addLesson = unit => {
   unit.lessons.push({
     title: `Nueva Lección ${unit.lessons.length + 1}`,
-    theme: "",
+    theme: '',
     duration: 0,
   });
 };
