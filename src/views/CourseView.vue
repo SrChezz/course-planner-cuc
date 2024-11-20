@@ -28,7 +28,7 @@
               @click="toggleEdit"
               class="px-4 py-2 mr-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300"
             >
-              {{ isEditing ? 'Cancelar' : 'Editar' }}
+              {{ isEditing ? "Cancelar" : "Editar" }}
             </button>
             <button
               v-if="isEditing"
@@ -86,13 +86,13 @@
                 </h4>
                 <ul class="space-y-2">
                   <li
-                    v-for="lesson in unit.lessons"
-                    :key="lesson.number"
+                    v-for="(lesson, lessonIndex) in unit.lessons"
+                    :key="lessonIndex"
                     class="flex items-center justify-between bg-gray-50 p-3 rounded"
                   >
                     <div>
                       <span class="font-medium">
-                        {{ lesson.number }}.
+                        {{ lessonIndex + 1 }}.
                         <span v-if="!isEditing">{{ lesson.title }}</span>
                         <input
                           v-else
@@ -120,7 +120,23 @@
                       min
                     </span>
                   </li>
+                  <li v-if="isEditing" class="mt-2">
+                    <button
+                      @click="addLesson(unit)"
+                      class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition duration-300"
+                    >
+                      Añadir Lección
+                    </button>
+                  </li>
                 </ul>
+              </div>
+              <div v-if="isEditing" class="mt-4">
+                <button
+                  @click="addUnit"
+                  class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300"
+                >
+                  Añadir Unidad
+                </button>
               </div>
             </div>
           </div>
@@ -225,7 +241,7 @@
             Cancelar
           </button>
           <button
-            @click="updateCourse($route.params.id)"
+            @click="updateCourse"
             class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300"
           >
             Confirmar
@@ -237,9 +253,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive } from 'vue';
-import { useRoute } from 'vue-router';
-import { useCoursesStore } from '@/stores/courses';
+import { ref, onMounted, reactive } from "vue";
+import { useRoute } from "vue-router";
+import { useCoursesStore } from "@/stores/courses";
 
 const route = useRoute();
 const coursesStore = useCoursesStore();
@@ -252,13 +268,13 @@ onMounted(async () => {
   const courseId = route.params.id;
   await coursesStore.fetchCourse(courseId);
   course.value = coursesStore.currentCourse;
-  Object.assign(editedCourse, course.value);
+  Object.assign(editedCourse, JSON.parse(JSON.stringify(course.value)));
 });
 
 const toggleEdit = () => {
   if (isEditing.value) {
     // Reset changes if canceling edit
-    Object.assign(editedCourse, course.value);
+    Object.assign(editedCourse, JSON.parse(JSON.stringify(course.value)));
   }
   isEditing.value = !isEditing.value;
 };
@@ -267,12 +283,33 @@ const confirmUpdate = () => {
   showConfirmation.value = true;
 };
 
-const updateCourse = async id => {
-  if (!Array.isArray(editedCourse.keywords))
-    editedCourse.keywords = editedCourse.keywords.split(',');
-  await coursesStore.updateCourse(id, editedCourse);
-  course.value = { ...editedCourse };
+const updateCourse = async () => {
+  if (typeof editedCourse.keywords === "string") {
+    editedCourse.keywords = editedCourse.keywords
+      .split(",")
+      .map((k) => k.trim());
+  }
+  await coursesStore.updateCourse(route.params.id, editedCourse);
+  course.value = JSON.parse(JSON.stringify(editedCourse));
   isEditing.value = false;
   showConfirmation.value = false;
+};
+
+const addUnit = () => {
+  if (!editedCourse.units) {
+    editedCourse.units = [];
+  }
+  editedCourse.units.push({
+    name: `Nueva Unidad ${editedCourse.units.length + 1}`,
+    lessons: [],
+  });
+};
+
+const addLesson = (unit) => {
+  unit.lessons.push({
+    title: `Nueva Lección ${unit.lessons.length + 1}`,
+    theme: "",
+    duration: 0,
+  });
 };
 </script>
