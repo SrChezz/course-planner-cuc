@@ -17,7 +17,7 @@
       </header>
 
       <!-- Faculties -->
-      <section class="p-6">
+      <!-- <section class="p-6">
         <h3 class="text-lg font-semibold mb-4">Facultades:</h3>
         <div class="flex space-x-4">
           <button
@@ -28,7 +28,7 @@
             <i-mdi-wrench class="w-6 h-6" />
           </button>
         </div>
-      </section>
+      </section> -->
 
       <!-- Courses -->
       <section class="p-6">
