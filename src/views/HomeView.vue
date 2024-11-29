@@ -14,6 +14,13 @@
         >
           Crear Curso
         </button>
+        <button
+          @click="handleLogout"
+          class="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600 transition duration-300"
+        >
+          Cerrar Sesión
+        </button>
+
       </header>
 
       <!-- Faculties -->
@@ -185,51 +192,83 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
-import { useCoursesStore } from '@/stores/courses';
+import { ref, reactive, onMounted } from "vue";
+import { useCoursesStore } from "@/stores/courses";
+import { useAuthStore } from "@/stores/auth";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const coursesStore = useCoursesStore();
+const authStore = useAuthStore();
 
 const faculties = ref([
-  'Engineering',
-  'Science',
-  'Arts',
-  'Business',
-  'Law',
-  'Medicine',
+  "Engineering",
+  "Science",
+  "Arts",
+  "Business",
+  "Law",
+  "Medicine",
 ]);
+
 const courses = ref([]);
+const loading = ref(false);
 const showModal = ref(false);
 const isEditing = ref(false);
 const currentCourse = reactive({
-  name: '',
-  author: '',
-  shortDescription: '',
+  name: "",
+  author: "",
+  shortDescription: "",
   duration: 0,
   credits: 0,
-  image: '',
+  image: "",
 });
+const errorMessage = ref("");
 
-// Fetch courses from Pinia store
+const resetCurrentCourse = () => {
+  Object.assign(currentCourse, {
+    name: "",
+    author: "",
+    shortDescription: "",
+    duration: 0,
+    credits: 0,
+    image: "",
+  });
+};
+
+const validateAuth = async () => {
+  try {
+    const isAuthenticated = await authStore.checkAuth();
+    if (!isAuthenticated) {
+      router.push("/login");
+    }
+  } catch (error) {
+    console.error("Error al validar la autenticación:", error);
+    router.push("/login");
+  }
+};
+
 const fetchCourses = async () => {
-  await coursesStore.fetchCourses();
-  courses.value = coursesStore.courses;
+  loading.value = true;
+  errorMessage.value = "";
+  try {
+    const token = authStore.getToken();
+    await coursesStore.fetchCourses(token);
+    courses.value = coursesStore.courses;
+  } catch (error) {
+    errorMessage.value = "Error al cargar los cursos. Intenta nuevamente.";
+    console.error(error);
+  } finally {
+    loading.value = false;
+  }
 };
 
 const openCreateModal = () => {
   isEditing.value = false;
-  Object.assign(currentCourse, {
-    name: '',
-    author: '',
-    shortDescription: '',
-    duration: 0,
-    credits: 0,
-    image: '',
-  });
+  resetCurrentCourse();
   showModal.value = true;
 };
 
-const openEditModal = course => {
+const openEditModal = (course) => {
   isEditing.value = true;
   Object.assign(currentCourse, course);
   showModal.value = true;
@@ -237,26 +276,55 @@ const openEditModal = course => {
 
 const closeModal = () => {
   showModal.value = false;
+  resetCurrentCourse();
 };
 
-const submitCourse = async id => {
-  if (isEditing.value) {
-    await coursesStore.updateCourse(id, currentCourse);
-  } else {
-    console.log(currentCourse);
-    await coursesStore.createCourse(currentCourse);
+const validateCourse = () => {
+  if (!currentCourse.name || !currentCourse.author) {
+    errorMessage.value = "El nombre del curso y el autor son obligatorios.";
+    return false;
   }
-  await fetchCourses();
-  closeModal();
+  if (currentCourse.duration <= 0 || currentCourse.credits <= 0) {
+    errorMessage.value = "La duración y los créditos deben ser mayores a cero.";
+    return false;
+  }
+  return true;
 };
 
-const deleteCourse = async id => {
-  if (confirm('¿Estás seguro de que quieres eliminar este curso?')) {
-    await coursesStore.deleteCourse(id);
+const submitCourse = async (id) => {
+  if (!validateCourse()) return;
+  try {
+    errorMessage.value = "";
+    const token = authStore.getToken();
+    if (isEditing.value) {
+      await coursesStore.updateCourse(id, currentCourse, token);
+    } else {
+      await coursesStore.createCourse(currentCourse, token);
+    }
     await fetchCourses();
+    closeModal();
+  } catch (error) {
+    errorMessage.value = "Error al guardar el curso. Intenta nuevamente.";
+    console.error(error);
   }
 };
 
-// Fetch courses when component is mounted
-fetchCourses();
+const deleteCourse = async (id) => {
+  if (confirm("¿Estás seguro de que quieres eliminar este curso?")) {
+    try {
+      const token = authStore.getToken();
+      await coursesStore.deleteCourse(id, token);
+      await fetchCourses();
+    } catch (error) {
+      errorMessage.value = "Error al eliminar el curso. Intenta nuevamente.";
+      console.error(error);
+    }
+  }
+};
+
+onMounted(async () => {
+  await validateAuth();
+  await fetchCourses();
+});
 </script>
+
