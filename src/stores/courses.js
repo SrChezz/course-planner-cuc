@@ -15,8 +15,8 @@ import { db } from '@/js/firebase';
 
 export const useCoursesStore = defineStore('courses', {
   state: () => ({
-    courses: [], // Lista de cursos
-    currentCourse: null, // Curso seleccionado
+    courses: [],
+    currentCourse: null,
   }),
   actions: {
     // Obtener todos los cursos
@@ -52,7 +52,6 @@ export const useCoursesStore = defineStore('courses', {
       }
     },
 
-    // Crear un nuevo curso
     async createCourse(courseData) {
       try {
         const coursesCollection = collection(db, 'courses');
@@ -64,7 +63,6 @@ export const useCoursesStore = defineStore('courses', {
       }
     },
 
-    // Actualizar un curso existente
     async updateCourse(id, updatedData) {
       try {
         const courseDoc = doc(db, 'courses', id);
@@ -76,7 +74,6 @@ export const useCoursesStore = defineStore('courses', {
       }
     },
 
-    // Eliminar un curso
     async deleteCourse(id) {
       try {
         const courseDoc = doc(db, 'courses', id);
